@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="./calendar.png">
+    <title>Birthday Chart</title>
+    <style>
+        :root {
+            --themecolor: rgb(73, 162, 206);
+        }
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                url('uploads/pexels-wdnet-226737.jpg');
+            background-color: var(--themecolor); /* Fallback color */
+            background-blend-mode: overlay;
+            background-size: cover; /* Cover the entire screen */
+            background-position: center;
+            height: 100vh; 
+            margin: 0; /* Remove default margin */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            justify-content: flex-start; /* Align items to the top */
+            align-items: flex-end; /* Align items to the right */
+            padding: 20px; /* Add padding to the body */
+        }
+
+        .color-picker-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .colorclass {
+            width: 30px;
+            height: 30px;
+            background-color: var(--themecolor);
+            border: 0px;
+            margin-right: 10px;
+            cursor: pointer;
+            padding: 0;
+            appearance: none; /* Remove default appearance */
+        }
+
+        .colorclass:focus {
+            outline: none; /* Remove outline on focus */
+        }
+
+        .click-button {
+            background-color: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+        }
+
+        .click-button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Lighten background on hover */
+        }
+
+        .main {
+            background-color: white;
+            width: 400px;
+            max-width: 90%; /* Ensure it's responsive */
+            height: auto;
+            margin: auto;
+            margin-top: 60px;
+            padding: 20px;
+            box-shadow: 5px 5px 40px rgb(105, 104, 104);
+            text-align: center;
+            border-radius: 10px;
+        }
+        .icon, #output {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+        .card {
+            display: none; /* Initially hide cards */
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .cardin {
+            padding-left: 20px;
+            text-align: left;
+        }
+        .cardin h3 {
+            color: black;
+        }
+        .cardin p {
+            margin-top: -15px;
+            color: grey;
+        }
+        button {
+            background-color: var(--themecolor);
+            border: 0px;
+            border-radius: 15px;
+            font-size: large;
+            padding: 10px 30px;
+            color: white;
+            margin: 5px;
+            margin-top: 5%;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+        }
+        button:hover {
+            background-color:black;
+        }
+        input[type='file'] {
+            display: none;
+        }
+        .form-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .form-container input[type="text"],
+        .form-container input[type="date"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-container label.dp {
+            display: inline-block;
+            padding: 10px ;
+            background-color: var(--themecolor);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+        }
+        .form-container label.dp:hover {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-picker-container">
+        <input type="color" class="colorclass">
+        <input type="button" onclick="ColorPick()" value="Click to Apply selected theme color" class="click-button">
+    </div>
+
+    <div class="main">
+        <h1>Birthday Calendar</h1>
+        <div class="card" style="display: none;">
+            <img id="output" class="icon" src="./calendar.png" alt="Icon" style="display: none;">
+            <div class="cardin" style="display: none;">
+                <h3 class="nameofperson" style="color: var(--themecolor);">Name of the person</h3>
+                <p class="dob">Date of birth</p>
+            </div>
+        </div>
+        <button class='addbtn' onclick="AddBirthday()">Add New Birthday</button>
+        <div class="form-container">
+            <form id="birthdayForm" method="post" enctype="multipart/form-data">
+                <input type='text' name="personName" id="personName" placeholder='Enter person name' required><br>
+                <input type='date' name="personDOB" id="personDOB" placeholder='Enter person date of birth' required><br>
+                <input type='file' accept='image/*' name='personImage' id='file' onchange='loadFile(event)' required><br>
+                <label class='dp' for='file'>Upload Image</label><br>
+                <input type="hidden" name="personAge" id="personAge">
+                <button type="button" class='submitbtn' onclick="submitData()">Submit</button>
+            </form>
+        </div>
+        <div class="display"></div>
+    </div>
+
+    <script>
+        function ColorPick() {
+            let color = document.querySelector('.colorclass').value;
+            document.documentElement.style.setProperty('--themecolor', color);
+            document.querySelector('.colorclass').style.backgroundColor = color; // Update color picker square
+        }
+
+        var loadFile = function(event) {
+            var image = document.getElementById('output');
+            image.src = URL.createObjectURL(event.target.files[0]);
+            document.querySelector('.dp').style.visibility = 'hidden';
+        };
+
+        function AddBirthday() {
+            var formContainer = document.querySelector('.form-container');
+            formContainer.style.display = 'block';
+            document.querySelector('.addbtn').style.display = 'none'; // Hide the Add New Birthday button
+        }
+
+        function calculateAge(birthday) {
+            var today = new Date();
+            var birthDate = new Date(birthday);
+            var age = today.getFullYear() - birthDate.getFullYear();
+            var monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function prepareFormData() {
+            var dob = document.getElementById('personDOB').value;
+            var age = calculateAge(dob);
+            document.getElementById('personAge').value = age;
+        }
+
+        function submitData() {
+            prepareFormData(); // Set the age input value
+
+            var formData = new FormData(document.getElementById('birthdayForm'));
+
+            fetch('save_birthday.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Create new card
+                    var newCard = `
+                        <div class="card" style="display: flex;">
+                            <img class="icon" src="${data.pic}" alt="Icon">
+                            <div class="cardin">
+                                <h3 class="nameofperson" style="color: var(--themecolor);">${data.name}</h3>
+                                <p class="dob">${data.dob} (Age: ${data.age})</p>
+                            </div>
+                        </div>
+                    `;
+                    var displayDiv = document.querySelector('.display');
+                    displayDiv.innerHTML += newCard;
+
+                    // Clear input fields and reset form for new entry
+                    document.getElementById('personName').value = '';
+                    document.getElementById('personDOB').value = '';
+                    document.getElementById('output').src = './calendar.png';
+                    document.querySelector('.dp').style.visibility = 'visible';
+
+                    // Hide form and show Add New Birthday button
+                    document.querySelector('.form-container').style.display = 'none';
+                    document.querySelector('.addbtn').style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('refresh the page!');
+            });
+        }
+
+        // Function to fetch birthdays and display on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('fetch_birthdays.php')
+            .then(response => response.json())
+            .then(data => {
+                var displayDiv = document.querySelector('.display');
+                data.forEach(birthday => {
+                    var dob = new Date(birthday.dob);
+                    var age = calculateAge(dob);
+
+                    var newCard = `
+                        <div class="card" style="display: flex;">
+                            <img class="icon" src="${birthday.pic}" alt="Icon">
+                            <div class="cardin">
+                                <h3 class="nameofperson" style="color: var(--themecolor);">${birthday.name}</h3>
+                                <p class="dob">${birthday.dob} (Age: ${age})</p>
+                            </div>
+                        </div>
+                    `;
+                    displayDiv.innerHTML += newCard;
+                });
+
+                // Show all cards after loading
+                var cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    card.style.display = 'flex';
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
