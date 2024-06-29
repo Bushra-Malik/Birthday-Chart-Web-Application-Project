@@ -1,4 +1,4 @@
-- Birthday Chart Web Application
+- Birthday Chart Web Application:
 This repository contains a dynamic web application for managing birthdays. Users can add birthdays with names, dates of birth, and upload images, which are displayed in a card format. The application features a customizable theme color and dynamically calculates and displays the age based on the birthdate. Birthdays are saved to a database for persistent storage and retrieval.
 
 - Features:
